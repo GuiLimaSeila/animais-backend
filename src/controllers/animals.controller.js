@@ -122,6 +122,7 @@ count ++
     if (count == 0) {
 
         const newAnimal = new Animal(name, age, type, color, statusVaccine, image);
+        animalsList.addAnimal(newAnimal);
 
         res.status(200).send({ message: "Animal criado com sucesso", origem: "controllers", data: newAnimal })
     } else {
