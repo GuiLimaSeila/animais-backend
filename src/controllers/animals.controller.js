@@ -3,17 +3,19 @@ import { AnimalsList } from "../models/animals/AnimalsList.js";
 
 const animalsList = new AnimalsList();
 
-let animal = new Animal("Bolinha", 2, "Cachorro", "Marrom", true, "https://www.petlove.com.br/images/breeds/193436/profile/original/pinscher-p.jpg?1532538276");
+let animal = new Animal("Bolinha", 2, "Cachorro", "Marrom", true, "https://www.petlove.com.br/images/breeds/193436/profile/original/pinscher-p.jpg");
 animalsList.addAnimal(animal);
 
+
 export const getAllAnimals = (req, res) => {
-    const animal= animalsList.getAllAnimals();
+    const animal = animalsList.getAllAnimals();
     if (!animal.length) {
         return res.status(404)
             .send({
                 message: "Não há nem um animal cadastrados",
                 status: "Dale tudo RUIM meu parça",
-                origin: "Controller"
+                origin: "Controller",
+                quantity: animalsList.animalsQuantity(),
             });
     }
 
@@ -22,6 +24,7 @@ export const getAllAnimals = (req, res) => {
             message: "Esses são todos os animais ja cadastrados",
             status: "Dale tudo Ok meu parça",
             origin: "Controller",
+            quantity: animalsList.animalsQuantity(),
             data: animal
         });
 }
@@ -31,7 +34,8 @@ export const getAnimalById = (req, res) => {
     const { id } = req.params;
     const animalByID = animalsList.getAnimalById(id)
 
-    if (!animalByID.length) {
+
+    if (!animalByID) {
         return res.status(404)
             .send({
                 message: "Não há um animal com esse id",
@@ -42,7 +46,7 @@ export const getAnimalById = (req, res) => {
 
     return res.status(200)
         .send({
-            message:  `animal de ID ${id}`,
+            message: `animal de ID ${id}`,
             status: "Dale tudo Ok meu parça",
             origin: "Controller",
             data: animalByID
@@ -53,7 +57,8 @@ export const getAnimalById = (req, res) => {
 export const createAnimal = (req, res) => {
     const { name, age, type, color, statusVaccine, image } = req.body;
 
-    if (!name || !age || !type || !color || !statusVaccine || !image) {
+
+    if (!name || !age || !type || !color || !image) {
         return res.status(400)
             .send({
                 message: "Precisa preencher todos os campos",
@@ -71,10 +76,10 @@ export const createAnimal = (req, res) => {
             });
     }
 
-    if (age < 0) { 
+    if (age < 0 || Number.isInteger(age) === false) {
         return res.status(400)
             .send({
-                message: "A idade precisa ser maior que 0",
+                message: "A idade precisa ser maior que 0 e um numero inteiro",
                 status: "Dale tudo RUIM meu parça",
                 origin: "Controller"
             });
@@ -83,7 +88,7 @@ export const createAnimal = (req, res) => {
     if (type.length < 3 || type.length > 30) {
         return res.status(400)
             .send({
-                message: "O tipo precisa ter menos que 30 caracteres",
+                message: "O tipo precisa ter menos que 30 caracteres e mais que 3",
                 status: "Dale tudo RUIM meu parça",
                 origin: "Controller"
             });
@@ -92,13 +97,13 @@ export const createAnimal = (req, res) => {
     if (color.length < 3 || color.length > 20) {
         return res.status(400)
             .send({
-                message: "A cor precisa ter menos que 30 caracteres",
+                message: "A cor precisa ter menos que 30 caracteres e mais que 3",
                 status: "Dale tudo RUIM meu parça",
                 origin: "Controller"
             });
     }
 
-    if (image.match(/\.(jpeg|jpg|gif|png)$/) != null) {
+    if (image.match(/\.(jpeg|jpg|gif|png)$/) == null) {
         return res.status(400)
             .send({
                 message: "Precissa ser um link valido",
@@ -107,17 +112,38 @@ export const createAnimal = (req, res) => {
             });
     }
 
-    const newAnimal = new Animal(name, age, type, color, statusVaccine, image);
+    if (statusVaccine === true) {
+        const newAnimal = new Animal(name, age, type, color, statusVaccine, image);
 
-    animalsList.addAnimal(newAnimal);
+        animalsList.addAnimal(newAnimal);
 
-    return res.status(201)
-        .send({
-            message: "Animal cadastrado com sucesso",
-            status: "Dale tudo Ok meu parça",
-            origin: "Controller",
-            data: newAnimal
-        });
+        return res.status(201)
+            .send({
+                message: "Animal Vacinado cadastrado com sucesso",
+                status: "Dale tudo Ok meu parça",
+                origin: "Controller",
+                quantity: animalsList.animalsQuantity(),
+                data: newAnimal
+            });
+    }
+
+    if (statusVaccine != true || statusVaccine == "" || statusVaccine == null) {
+        const newAnimal = new Animal(name, age, type, color, statusVaccine, image);
+
+        animalsList.addAnimal(newAnimal);
+
+        return res.status(201)
+            .send({
+                message: "Animal não Vacinado cadastrado com sucesso",
+                status: "Dale tudo Ok meu parça",
+                origin: "Controller",
+                quantity: animalsList.animalsQuantity(),
+                data: newAnimal
+            });
+
+    }
+
+
 }
 
 export const updateAnimal = (req, res) => {
@@ -153,7 +179,7 @@ export const updateAnimal = (req, res) => {
             });
     }
 
-    if (age < 0) { 
+    if (age < 0 || Number.isInteger(age) === false) {
         return res.status(400)
             .send({
                 message: "A idade precisa ser maior que 0",
@@ -180,7 +206,7 @@ export const updateAnimal = (req, res) => {
             });
     }
 
-    if (image.match(/\.(jpeg|jpg|gif|png)$/) != null) {
+    if (image.match(/\.(jpeg|jpg|gif|png)$/) == null) {
         return res.status(400)
             .send({
                 message: "Precissa ser um link valido",
@@ -189,15 +215,32 @@ export const updateAnimal = (req, res) => {
             });
     }
 
-    const updatedAnimal = animalsList.updateAnimal(id, name, age, type, color, statusVaccine, image);
+    if (statusVaccine === true) {
+        const updateAnimal = animalsList.updateAnimal(id, name, age, type, color, statusVaccine, image);
 
-    return res.status(200)
-        .send({
-            message: "Animal atualizado com sucesso",
-            status: "Dale tudo Ok meu parça",
-            origin: "Controller",
-            data: updatedAnimal
-        });
+        return res.status(201)
+            .send({
+                message: "Animal Vacinado atualizado com sucesso",
+                status: "Dale tudo Ok meu parça",
+                origin: "Controller",
+                quantity: animalsList.animalsQuantity(),
+                data: updateAnimal
+            });
+    }
+
+    if (statusVaccine != true || statusVaccine == "" || statusVaccine == null) {
+        const updateAnimal = animalsList.updateAnimal(id, name, age, type, color, statusVaccine, image);
+
+        return res.status(201)
+            .send({
+                message: "Animal não Vacinado atualizado com sucesso",
+                status: "Dale tudo Ok meu parça",
+                origin: "Controller",
+                quantity: animalsList.animalsQuantity(),
+                data: updateAnimal
+            });
+
+    }
 }
 
 export const deleteAnimal = (req, res) => {
@@ -220,6 +263,7 @@ export const deleteAnimal = (req, res) => {
         .send({
             message: "Animal deletado com sucesso",
             status: "Dale tudo Ok meu parça",
+            quantity: animalsList.animalsQuantity(),
             origin: "Controller",
         });
 }

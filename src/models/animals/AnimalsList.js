@@ -34,4 +34,9 @@ getAllAnimals() {
     deleteAnimal(id) {
         this.animals = this.animals.filter((animal) => animal.id !== id);
     }
+
+    animalsQuantity() {
+        return this.animals.length;
+    }
+
 }
