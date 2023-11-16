@@ -9,6 +9,14 @@ animalsList.addAnimal(animal);
 
 export const getAllAnimals = (req, res) => {
     const animal = animalsList.getAllAnimals();
+
+    const { type } = req.query;
+    console.log(type);
+
+    const animalByType = animalsList.getAnimalByType(type);
+    console.log(animalByType);
+
+
     if (!animal) {
         return res.status(404)
             .send({
@@ -19,35 +27,35 @@ export const getAllAnimals = (req, res) => {
             });
     }
 
-    return res.status(200)
-        .send({
-            message: "Esses são todos os animais ja cadastrados",
-            status: "Dale tudo Ok meu parça",
-            origin: "Controller",
-            quantity: animalsList.animalsQuantity(),
-            data: animal
-        });
-}
 
-export const getAnimalByType = (req, res) => {
-    const { type } = req.query;
-    console.log(type);
-    const animalByType = animalsList.getAnimalByType(type);
-    if (!animalByType) {
-        return res.status(404)
-            .send({
-                message: "Não há nem um animal desse tipo cadastrado",
-            }
-            );
+    animal.forEach((animal) => {
+        if (animal.statusVaccine == true) {
+            animal.status = "Vacinado";
+        } else {
+            animal.status = "Não vacinado";
+        }
+    });
+
+    if (animalByType == "") {
+    return res.status(200)
+    .send({
+        message: "Esses são todos os animais ja cadastrados",
+        status: "Dale tudo Ok meu parça",
+        origin: "Controller",
+        quantity: animalsList.animalsQuantity(),
+        data: animal
+    });
     }
     return res.status(200)
-        .send({
-            message: `Esses são todos os animais do tipo ${type}`,
-            data: animalByType
-        }
-        );
-}
+    .send({  message: "Esses são todos os animais desse tipo",
+    status: "Dale tudo Ok meu parça",
+    origin: "Controller",
+    quantity: animalByType.length,
+    data: animalByType
+});
 
+
+}
 
 export const getAnimalById = (req, res) => {
 
@@ -74,91 +82,52 @@ export const getAnimalById = (req, res) => {
 export const createAnimal = (req, res) => {
     const { name, age, type, color, statusVaccine, image } = req.body;
 
+    let error = "Erro: "
+    let count =0
 
     if (!name || !age || !type || !color || !image) {
-        return res.status(400)
-            .send({
-                message: "Precisa preencher todos os campos",
-                status: "Dale tudo RUIM meu parça",
-                origin: "Controller"
-            });
+        error += " Preencha todos os campos."
+count ++
     }
 
     if (name.length < 3 || name.length > 50) {
-        return res.status(400)
-            .send({
-                message: "O nome precisa ter entre 3 e 50 caracteres",
-                status: "Dale tudo RUIM meu parça",
-                origin: "Controller"
-            });
+        error += " Nome inválido."
+        count ++
     }
+    if (typeof age != 'number' || age == "") {
+        if (age < 0 || Number.isInteger(age) == false) {
+            error += " Idade inválida."
+            error.push("Idade inválida.")
+            count ++
 
-    if (age < 0 || Number.isInteger(age) === false) {
-        return res.status(400)
-            .send({
-                message: "A idade precisa ser maior que 0 e um numero inteiro",
-                status: "Dale tudo RUIM meu parça",
-                origin: "Controller"
-            });
+        }
     }
-
-    if (type.length < 3 || type.length > 30) {
-        return res.status(400)
-            .send({
-                message: "O tipo precisa ter menos que 30 caracteres e mais que 3",
-                status: "Dale tudo RUIM meu parça",
-                origin: "Controller"
-            });
+    if (type.length > 30 || type == "") {
+        error += " Tipo inválido."
+        count ++
     }
-
-    if (color.length < 3 || color.length > 20) {
-        return res.status(400)
-            .send({
-                message: "A cor precisa ter menos que 30 caracteres e mais que 3",
-                status: "Dale tudo RUIM meu parça",
-                origin: "Controller"
-            });
+    if (color.length > 20 || color == "") {
+        error += " Cor inválida."
+        count ++
     }
-
     if (image.match(/\.(jpeg|jpg|gif|png)$/) == null) {
-        return res.status(400)
-            .send({
-                message: "Precissa ser um link valido",
-                status: "Dale tudo RUIM meu parça",
-                origin: "Controller"
-            });
+        error += " Imagem inválida."
+        count ++
+    }
+    if (typeof statusVaccine != 'boolean') {
+        error += " Vacinacao invalida."
+        count ++
     }
 
-    if (statusVaccine === true) {
+    if (count == 0) {
+
         const newAnimal = new Animal(name, age, type, color, statusVaccine, image);
 
-        animalsList.addAnimal(newAnimal);
-
-        return res.status(201)
-            .send({
-                message: "Animal Vacinado cadastrado com sucesso",
-                status: "Dale tudo Ok meu parça",
-                origin: "Controller",
-                quantity: animalsList.animalsQuantity(),
-                data: newAnimal
-            });
+        res.status(200).send({ message: "Animal criado com sucesso", origem: "controllers", data: newAnimal })
+    } else {
+        res.status(400).send({ message: error, status: "Not Found" })
     }
 
-    if (statusVaccine != true || statusVaccine == "" || statusVaccine == null) {
-        const newAnimal = new Animal(name, age, type, color, statusVaccine, image);
-
-        animalsList.addAnimal(newAnimal);
-
-        return res.status(201)
-            .send({
-                message: "Animal não Vacinado cadastrado com sucesso",
-                status: "Dale tudo Ok meu parça",
-                origin: "Controller",
-                quantity: animalsList.animalsQuantity(),
-                data: newAnimal
-            });
-
-    }
 
 
 }
@@ -169,6 +138,9 @@ export const updateAnimal = (req, res) => {
 
     const animalByID = animalsList.getAnimalById(id);
 
+    let error = "Erro: "
+    let count =0
+
     if (!animalByID) {
         return res.status(404)
             .send({
@@ -178,86 +150,47 @@ export const updateAnimal = (req, res) => {
             });
     }
 
-    if (!name || !age || !type || !color || !statusVaccine || !image) {
-        return res.status(400)
-            .send({
-                message: "Precisa preencher todos os campos",
-                status: "Dale tudo RUIM meu parça",
-                origin: "Controller"
-            });
+    if (!name || !age || !type || !color || !image) {
+        error += " Preencha todos os campos."
+count ++
     }
 
     if (name.length < 3 || name.length > 50) {
-        return res.status(400)
-            .send({
-                message: "O nome precisa ter entre 3 e 50 caracteres",
-                status: "Dale tudo RUIM meu parça",
-                origin: "Controller"
-            });
+        error += " Nome inválido."
+        count ++
     }
+    if (typeof age != 'number' || age == "") {
+        if (age < 0 || Number.isInteger(age) == false) {
+            error += " Idade inválida."
+            error.push("Idade inválida.")
+            count ++
 
-    if (age < 0 || Number.isInteger(age) === false) {
-        return res.status(400)
-            .send({
-                message: "A idade precisa ser maior que 0",
-                status: "Dale tudo RUIM meu parça",
-                origin: "Controller"
-            });
+        }
     }
-
-    if (type.length < 3 || type.length > 30) {
-        return res.status(400)
-            .send({
-                message: "O tipo precisa ter menos que 30 caracteres",
-                status: "Dale tudo RUIM meu parça",
-                origin: "Controller"
-            });
+    if (type.length > 30 || type == "") {
+        error += " Tipo inválido."
+        count ++
     }
-
-    if (color.length < 3 || color.length > 20) {
-        return res.status(400)
-            .send({
-                message: "A cor precisa ter menos que 30 caracteres",
-                status: "Dale tudo RUIM meu parça",
-                origin: "Controller"
-            });
+    if (color.length > 20 || color == "") {
+        error += " Cor inválida."
+        count ++
     }
-
     if (image.match(/\.(jpeg|jpg|gif|png)$/) == null) {
-        return res.status(400)
-            .send({
-                message: "Precissa ser um link valido",
-                status: "Dale tudo RUIM meu parça",
-                origin: "Controller"
-            });
+        error += " Imagem inválida."
+        count ++
+    }
+    if (typeof statusVaccine != 'boolean') {
+        error += " Vacinacao invalida."
+        count ++
     }
 
-    if (statusVaccine === true) {
-        const updateAnimal = animalsList.updateAnimal(id, name, age, type, color, statusVaccine, image);
-
-        return res.status(201)
-            .send({
-                message: "Animal Vacinado atualizado com sucesso",
-                status: "Dale tudo Ok meu parça",
-                origin: "Controller",
-                quantity: animalsList.animalsQuantity(),
-                data: updateAnimal
-            });
+    if (count == 0) {
+        animalsList.addAnimal(new Animal(name, age, type, color, statusVaccine, image))
+        res.status(200).send({ message: "Animal atualizado com sucesso", origem: "controllers", data: animalNovo })
+    } else {
+        res.status(400).send({ message: error, status: "Not Found" })
     }
 
-    if (statusVaccine != true || statusVaccine == "" || statusVaccine == null) {
-        const updateAnimal = animalsList.updateAnimal(id, name, age, type, color, statusVaccine, image);
-
-        return res.status(201)
-            .send({
-                message: "Animal não Vacinado atualizado com sucesso",
-                status: "Dale tudo Ok meu parça",
-                origin: "Controller",
-                quantity: animalsList.animalsQuantity(),
-                data: updateAnimal
-            });
-
-    }
 }
 
 export const deleteAnimal = (req, res) => {
