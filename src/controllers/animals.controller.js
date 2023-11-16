@@ -3,13 +3,13 @@ import { AnimalsList } from "../models/animals/AnimalsList.js";
 
 const animalsList = new AnimalsList();
 
-let animal = new Animal("Bolinha", 2, "Cachorro", "Marrom", true, "https://www.petlove.com.br/images/breeds/193436/profile/original/pinscher-p.jpg");
+let animal = new Animal("Bolinha", 2, "Cachorro", "Marrom", true, "https://s2.glbimg.com/LZUkuMEBy-R0TzMPh2htnLg4qq8=/620x465/s2.glbimg.com/wFqgUL8IGb4N_U2470KOgVaeXms=/620x465/top/s.glbimg.com/jo/g1/f/original/2016/12/16/bolinha_1700_agora.jpg");
 animalsList.addAnimal(animal);
 
 
 export const getAllAnimals = (req, res) => {
     const animal = animalsList.getAllAnimals();
-    if (!animal.length) {
+    if (!animal) {
         return res.status(404)
             .send({
                 message: "Não há nem um animal cadastrados",
@@ -29,11 +29,30 @@ export const getAllAnimals = (req, res) => {
         });
 }
 
+export const getAnimalByType = (req, res) => {
+    const { type } = req.query;
+    console.log(type);
+    const animalByType = animalsList.getAnimalByType(type);
+    if (!animalByType) {
+        return res.status(404)
+            .send({
+                message: "Não há nem um animal desse tipo cadastrado",
+            }
+            );
+    }
+    return res.status(200)
+        .send({
+            message: `Esses são todos os animais do tipo ${type}`,
+            data: animalByType
+        }
+        );
+}
+
+
 export const getAnimalById = (req, res) => {
 
     const { id } = req.params;
     const animalByID = animalsList.getAnimalById(id)
-
 
     if (!animalByID) {
         return res.status(404)
@@ -47,8 +66,6 @@ export const getAnimalById = (req, res) => {
     return res.status(200)
         .send({
             message: `animal de ID ${id}`,
-            status: "Dale tudo Ok meu parça",
-            origin: "Controller",
             data: animalByID
         }
         );

@@ -11,6 +11,10 @@ getAllAnimals() {
         return this.animals.find((animal) => animal.id === id);
     }
 
+    getAnimalByType(type) {
+        return this.animals.filter((animal) => animal.type === type);
+    }
+
     addAnimal(animal) {
         this.animals.push(animal);
     }
