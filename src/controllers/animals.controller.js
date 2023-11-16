@@ -37,22 +37,23 @@ export const getAllAnimals = (req, res) => {
     });
 
     if (animalByType == "") {
-    return res.status(200)
-    .send({
-        message: "Esses são todos os animais ja cadastrados",
-        status: "Dale tudo Ok meu parça",
-        origin: "Controller",
-        quantity: animalsList.animalsQuantity(),
-        data: animal
-    });
+        return res.status(200)
+            .send({
+                message: "Esses são todos os animais ja cadastrados",
+                status: "Dale tudo Ok meu parça",
+                origin: "Controller",
+                quantity: animalsList.animalsQuantity(),
+                data: animal
+            });
     }
     return res.status(200)
-    .send({  message: "Esses são todos os animais desse tipo",
-    status: "Dale tudo Ok meu parça",
-    origin: "Controller",
-    quantity: animalByType.length,
-    data: animalByType
-});
+        .send({
+            message: "Esses são todos os animais desse tipo",
+            status: "Dale tudo Ok meu parça",
+            origin: "Controller",
+            quantity: animalByType.length,
+            data: animalByType
+        });
 
 
 }
@@ -83,40 +84,40 @@ export const createAnimal = (req, res) => {
     const { name, age, type, color, statusVaccine, image } = req.body;
 
     let error = "Erro: "
-    let count =0
+    let count = 0
 
     if (!name || !age || !type || !color || !image) {
         error += " Preencha todos os campos."
-count ++
+        count++
     }
 
     if (name.length < 3 || name.length > 50) {
         error += " Nome inválido."
-        count ++
+        count++
     }
     if (typeof age != 'number' || age == "") {
         if (age < 0 || Number.isInteger(age) == false) {
             error += " Idade inválida."
             error.push("Idade inválida.")
-            count ++
+            count++
 
         }
     }
     if (type.length > 30 || type == "") {
         error += " Tipo inválido."
-        count ++
+        count++
     }
     if (color.length > 20 || color == "") {
         error += " Cor inválida."
-        count ++
+        count++
     }
     if (image.match(/\.(jpeg|jpg|gif|png)$/) == null) {
         error += " Imagem inválida."
-        count ++
+        count++
     }
     if (typeof statusVaccine != 'boolean') {
         error += " Vacinacao invalida."
-        count ++
+        count++
     }
 
     if (count == 0) {
@@ -140,7 +141,7 @@ export const updateAnimal = (req, res) => {
     const animalByID = animalsList.getAnimalById(id);
 
     let error = "Erro: "
-    let count =0
+    let count = 0
 
     if (!animalByID) {
         return res.status(404)
@@ -153,36 +154,36 @@ export const updateAnimal = (req, res) => {
 
     if (!name || !age || !type || !color || !image) {
         error += " Preencha todos os campos."
-count ++
+        count++
     }
 
     if (name.length < 3 || name.length > 50) {
         error += " Nome inválido."
-        count ++
+        count++
     }
     if (typeof age != 'number' || age == "") {
         if (age < 0 || Number.isInteger(age) == false) {
             error += " Idade inválida."
             error.push("Idade inválida.")
-            count ++
+            count++
 
         }
     }
     if (type.length > 30 || type == "") {
         error += " Tipo inválido."
-        count ++
+        count++
     }
     if (color.length > 20 || color == "") {
         error += " Cor inválida."
-        count ++
+        count++
     }
     if (image.match(/\.(jpeg|jpg|gif|png)$/) == null) {
         error += " Imagem inválida."
-        count ++
+        count++
     }
     if (typeof statusVaccine != 'boolean') {
         error += " Vacinacao invalida."
-        count ++
+        count++
     }
 
     if (count == 0) {
