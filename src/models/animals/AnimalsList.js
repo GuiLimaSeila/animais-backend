@@ -15,15 +15,18 @@ getAllAnimals() {
         this.animals.push(animal);
     }
 
-    updateAnimal(id, nome, descricao, limiteVagas) {
-        const animal = this.getanimalById(id);
+    updateAnimal(id, name, age, type, color, statusVaccine, image) {
+        const animal = this.getAnimalById(id);
         if (!animal) {
             return null;
         }
 
-        animal.nome = nome;
-        animal.descricao = descricao;
-        animal.limiteVagas = limiteVagas;
+        animal.name = name;
+        animal.age = age;
+        animal.type = type;
+        animal.color = color;
+        animal.statusVaccine = statusVaccine;
+        animal.image = image;
 
         return animal;
     }
