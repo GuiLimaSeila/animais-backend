@@ -185,8 +185,9 @@ count ++
     }
 
     if (count == 0) {
-        animalsList.addAnimal(new Animal(name, age, type, color, statusVaccine, image))
-        res.status(200).send({ message: "Animal atualizado com sucesso", origem: "controllers", data: animalNovo })
+        const animalEdited = animalsList.updateAnimal(id, name, age, type, color, statusVaccine, image);
+
+        res.status(200).send({ message: "Animal atualizado com sucesso", origem: "controllers", data: animalEdited })
     } else {
         res.status(400).send({ message: error, status: "Not Found" })
     }
