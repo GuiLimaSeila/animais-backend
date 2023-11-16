@@ -1,33 +1,13 @@
-export class AnimalsList {    
-    constructor() {
-        this.animals = [];
-    }
-getAllAnimals() {
-        return this.animals;
-    }
+import { v4 as uuidv4 } from 'uuid';
 
-    getAnimalById(id) {
-        return this.animals.find((animal) => animal.id === id);
-    }
-
-    addAnimal(animal) {
-        this.animals.push(animal);
-    }
-
-    updateAnimal(id, nome, descricao, limiteVagas) {
-        const animal = this.getanimalById(id);
-        if (!animal) {
-            return null;
-        }
-
-        animal.nome = nome;
-        animal.descricao = descricao;
-        animal.limiteVagas = limiteVagas;
-
-        return animal;
-    }
-
-    deleteAnimal(id) {
-        this.animals = this.animals.filter((animal) => animal.id !== id);
+export class Animal {
+    constructor(name, age, type, color, statusVaccine, image) {
+        this.id = uuidv4();
+        this.name = name;
+        this.age = age;
+        this.type = type;
+        this.color = color;
+        this.statusVaccine = statusVaccine;
+        this.image = image;
     }
 }
